@@ -3,8 +3,12 @@ import requests
 import os
 from openai import OpenAI
 from dotenv import load_dotenv
+from flask_cors import CORS  # Import CORS
 
 app = Flask(__name__)
+
+# Enable CORS for all origins (or specify origins if needed)
+CORS(app)
 
 # Load environment variables
 load_dotenv()

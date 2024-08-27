@@ -1,0 +1,34 @@
+.App {
+  text-align: center;
+  padding: 20px;
+}
+
+.weather-section, .chat-section {
+  margin: 20px 0;
+}
+
+input {
+  padding: 10px;
+  margin-right: 10px;
+  width: 200px;
+}
+
+button {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+.weather-info, .chat-response {
+  margin-top: 20px;
+  text-align: left;
+  display: inline-block;
+  padding: 10px;
+  border: 1px solid #ddd;
+}
