@@ -18,28 +18,31 @@ weather_api_key = os.getenv('WEATHER_API_KEY')
 # Initialize OpenAI client
 client = OpenAI(api_key=openai_api_key)
 
+from datetime import datetime, timedelta
+
 def filter_weather_data(daily_data):
     """
-    Filter the daily weather data to include only the current day and the next 5 days.
+    Filter the daily weather data to include only the next 5 days, with one entry per day.
 
     Args:
         daily_data (list): List of weather data entries.
 
     Returns:
-        list: Filtered list of weather data entries for the current day and next 5 days.
+        list: Filtered list of weather data entries for the next 5 days.
     """
     today = datetime.utcnow().date()
-    end_date = today + timedelta(days=5)
-    filtered_data = {}
+    end_date = today + timedelta(days=6)  # Include 6 days to get the next 5 days
+    daily_forecast = {}
     
     for entry in daily_data:
         date = datetime.fromtimestamp(entry['dt']).date()
-        if today <= date <= end_date:
+        if today < date <= end_date:
             date_str = date.strftime('%Y-%m-%d')
-            if date_str not in filtered_data:
-                filtered_data[date_str] = entry
+            # Choose the forecast with the closest time to midday
+            if date_str not in daily_forecast or entry['dt'] % 86400 < daily_forecast[date_str]['dt'] % 86400:
+                daily_forecast[date_str] = entry
     
-    return list(filtered_data.values())
+    return list(daily_forecast.values())
 
 @app.route('/weather', methods=['GET'])
 def get_weather():
