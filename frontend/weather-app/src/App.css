@@ -1,18 +1,22 @@
+/* General styling for the application */
 .App {
   text-align: center;
   padding: 20px;
 }
 
+/* Styling for the weather and chat sections */
 .weather-section, .chat-section {
   margin: 20px 0;
 }
 
+/* Styling for input fields */
 input {
   padding: 10px;
   margin-right: 10px;
   width: 200px;
 }
 
+/* Styling for buttons */
 button {
   padding: 10px 20px;
   background-color: #007bff;
@@ -21,14 +25,37 @@ button {
   cursor: pointer;
 }
 
+/* Styling for button hover state */
 button:hover {
   background-color: #0056b3;
 }
 
-.weather-info, .chat-response {
+/* Common styling for weather info, chat responses, and forecast entries */
+.weather-info, .chat-response, .forecast-entry {
   margin-top: 20px;
   text-align: left;
   display: inline-block;
   padding: 10px;
   border: 1px solid #ddd;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Styling for the current weather section */
+.current-weather {
+  margin-bottom: 20px;
+}
+
+/* Container for forecast information */
+.forecast-info {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* Individual forecast entries */
+.forecast-entry {
+  width: 200px;
+  margin: 10px;
+  text-align: center;
 }
