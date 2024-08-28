@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import './App.css';
 
 function App() {
-  // State variables for city input, weather data, chat message, and chat response
+  // State variables for city input, weather data, chat message, chat response, and PM Accelerator info visibility
   const [city, setCity] = useState('');
   const [weather, setWeather] = useState(null);
   const [message, setMessage] = useState('');
   const [chatResponse, setChatResponse] = useState('');
+  const [showInfo, setShowInfo] = useState(false);
 
   // Function to fetch weather data based on city input
   const getWeather = async () => {
@@ -16,7 +17,7 @@ function App() {
       if (response.ok) {
         setWeather({
           current: data.current,
-          daily: data.daily
+          daily: data.daily,
         });
       } else {
         alert(data.error || 'Failed to fetch weather data');
@@ -47,9 +48,15 @@ function App() {
     }
   };
 
+  // Toggle display of PM Accelerator information
+  const toggleInfo = () => {
+    setShowInfo(!showInfo);
+  };
+
   return (
     <div className="App">
       <h1>Weather & Chat App</h1>
+      <h3>Developed by Mason Wong</h3>
 
       {/* Weather section for displaying current weather and 5-day forecast */}
       <div className="weather-section">
@@ -94,6 +101,24 @@ function App() {
         {chatResponse && (
           <div className="chat-response">
             <p><strong>AI:</strong> {chatResponse}</p>
+          </div>
+        )}
+      </div>
+
+      {/* PM Accelerator Info section */}
+      <div className="pm-accelerator-section">
+        <button onClick={toggleInfo} className="info-button">
+          Info about Product Manager Accelerator
+        </button>
+        {showInfo && (
+          <div className="pm-info">
+            <h3>What is Product Manager Accelerator?</h3>
+            <p>
+            The Product Manager Accelerator is your go-to resource for advancing your career in Product Management.
+            Whether you're aiming to secure your first PM role or looking to climb to a Director position, they've
+            assisted many students in landing their dream jobs at top companies like FAANG, Fortune 500 firms,
+            web3 organizations, and thriving startups. They’re dedicated to supporting you throughout your career journey.
+            </p>
           </div>
         )}
       </div>
