@@ -3,41 +3,96 @@ import requests
 import os
 from openai import OpenAI
 from dotenv import load_dotenv
-from flask_cors import CORS  # Import CORS
+from flask_cors import CORS
+from datetime import datetime, timedelta
 
+# Initialize Flask application
 app = Flask(__name__)
+CORS(app)  # Enable Cross-Origin Resource Sharing
+load_dotenv()  # Load environment variables from a .env file
 
-# Enable CORS for all origins (or specify origins if needed)
-CORS(app)
-
-# Load environment variables
-load_dotenv()
-
-# Set OpenAI API key
+# Retrieve API keys from environment variables
 openai_api_key = os.getenv('OPENAI_API_KEY')
+weather_api_key = os.getenv('WEATHER_API_KEY')
 
 # Initialize OpenAI client
 client = OpenAI(api_key=openai_api_key)
 
-# Set weather API key
-weather_api_key = os.getenv('WEATHER_API_KEY')
+def filter_weather_data(daily_data):
+    """
+    Filter the daily weather data to include only the current day and the next 5 days.
+
+    Args:
+        daily_data (list): List of weather data entries.
+
+    Returns:
+        list: Filtered list of weather data entries for the current day and next 5 days.
+    """
+    today = datetime.utcnow().date()
+    end_date = today + timedelta(days=5)
+    filtered_data = {}
+    
+    for entry in daily_data:
+        date = datetime.fromtimestamp(entry['dt']).date()
+        if today <= date <= end_date:
+            date_str = date.strftime('%Y-%m-%d')
+            if date_str not in filtered_data:
+                filtered_data[date_str] = entry
+    
+    return list(filtered_data.values())
 
 @app.route('/weather', methods=['GET'])
 def get_weather():
+    """
+    Endpoint to fetch current weather and a 5-day forecast for a specified city.
+
+    Query Parameters:
+        city (str): The name of the city to fetch weather data for.
+
+    Returns:
+        Response: A JSON response containing the city name, current weather, and filtered daily forecast data.
+    """
     city = request.args.get('city')
     if not city:
         return jsonify({'error': 'City is required'}), 400
     
-    response = requests.get(f'http://api.openweathermap.org/data/2.5/weather?q={city}&appid={weather_api_key}')
-    
+    # Fetch 5-day weather forecast
+    response = requests.get(f'http://api.openweathermap.org/data/2.5/forecast?q={city}&appid={weather_api_key}')
     if response.status_code != 200:
         return jsonify({'error': 'Failed to fetch weather data'}), response.status_code
     
     data = response.json()
-    return jsonify(data)
+    
+    # Fetch current weather
+    current_weather_response = requests.get(f'http://api.openweathermap.org/data/2.5/weather?q={city}&appid={weather_api_key}')
+    if current_weather_response.status_code != 200:
+        return jsonify({'error': 'Failed to fetch current weather data'}), current_weather_response.status_code
+    
+    current_weather = current_weather_response.json()
+    
+    # Prepare and filter data
+    daily_data = [entry for entry in data['list']]
+    filtered_data = filter_weather_data(daily_data)
+    
+    return jsonify({
+        'city': data['city'],
+        'current': current_weather,
+        'daily': filtered_data
+    })
 
 @app.route('/chat', methods=['POST'])
 def chat():
+    """
+    Endpoint to interact with the OpenAI API for a chat response based on user input.
+
+    Request Body:
+        {
+            "message": "User message"
+        }
+
+    Returns:
+        Response: A JSON response containing the chat response from OpenAI.
+    """
     user_input = request.json.get('message')
     if not user_input:
         return jsonify({'error': 'Message is required'}), 400
@@ -55,4 +110,5 @@ def chat():
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
+    # Run the Flask application
     app.run(debug=True)
