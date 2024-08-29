@@ -108,7 +108,9 @@ def chat():
             model="gpt-3.5-turbo",
             max_tokens=50
         )
-        return jsonify({'response': response['choices'][0]['message']['content'].strip()})
+        # Correctly accessing the content from the response object
+        message_content = response.choices[0].message.content.strip()
+        return jsonify({'response': message_content})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
